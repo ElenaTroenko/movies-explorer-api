@@ -32,7 +32,7 @@ userRouter.post('/signup', celebrate(createUserSchema), createUser);
 userRouter.post('/signin', celebrate(loginSchema), login);
 
 // Мидлвар-защита роутов авторизацией
-// userRouter.use('/', auth);
+userRouter.use('/', auth);
 
 // роуты user
 userRouter.get('/users/me', getUserInfo);

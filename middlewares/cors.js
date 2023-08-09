@@ -1,6 +1,6 @@
 module.exports = (req, res, next) => {
 
-// массив со списком разрешенных доменов
+  // массив со списком разрешенных доменов
   const allowedCors = [
     'http://et-movies.nomoreparties.co',
     'https://et-movies.nomoreparties.co',

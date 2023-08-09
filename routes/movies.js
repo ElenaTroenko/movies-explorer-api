@@ -23,7 +23,7 @@ const deleteMovieSchema = {
   params: Joi.object().keys({
     _id: Joi.string().length(24).required(),
   }),
-}
+};
 
 
 // роуты movie

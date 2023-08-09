@@ -14,12 +14,12 @@ const getMovies = (req, res, next) => {
 // Создать фильм
 const createMovie = (req, res, next) => {
   const { country, director, duration, year, description, image,
-      trailer, nameRU, nameEN, thumbnail, movieId } = req.body;
+    trailer, nameRU, nameEN, thumbnail, movieId } = req.body;
   const id = req.user._id;
   const owner = new mongoose.Types.ObjectId(id);
 
   Movie.create({ country, director, duration, year, description, image,
-      trailer, nameRU, nameEN, thumbnail, movieId, owner })
+    trailer, nameRU, nameEN, thumbnail, movieId, owner })
     .then(movie => res.status(201).send(movie))
     .catch((err) => next(new UniError(err, 'создание фильма')));
 };
