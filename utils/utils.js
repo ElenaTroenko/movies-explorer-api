@@ -1,9 +1,18 @@
+const UniError = require('./errors');
+const { errorMessages } = require('./messages');
+
 // шлет ошибку в ответ (res)
 const sendError = (err, res) => {
-  const { statusCode = 500, message = 'На сервере произошла ошибка' } = err;
+  // определить принадлежность классу объекта err.
+  // если не UniError - привести к UniError
+  let error = err;
+  if (!(err instanceof UniError)) {
+    error = new UniError(err);
+  }
+  const { statusCode = 500, message = errorMessages.DEFAULT } = error;
 
-  res.status(statusCode).send({message});
+  // отправить ответ со статусом и сообщением
+  res.status(statusCode).send({ message });
 };
-
 
 module.exports = { sendError };

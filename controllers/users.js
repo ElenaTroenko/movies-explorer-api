@@ -1,9 +1,9 @@
-const User = require ('../models/user');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const User = require('../models/user');
 const UniError = require('../utils/errors');
-const { secredKey } = require('../utils/constants');
-
+const { secredKey, jwtExpiresIn } = require('../utils/constants');
+const { errorMessages } = require('../utils/messages');
 
 // Создать пользователя
 const createUser = (req, res, next) => {
@@ -13,19 +13,18 @@ const createUser = (req, res, next) => {
     .then(async (hash) => {
       try {
         await User.create({ name, email, password: hash })
-          .then((user) => {
-            User.findById(user._id)
-              .then((user) => res.status(201).send({user}));
+          .then((recordedUser) => {
+            User.findById(recordedUser._id)
+              .then((user) => res.status(201).send({ user }));
           });
-      } catch(err) {
-        next(new UniError(err, 'создание пользователя'), res);
+      } catch (err) {
+        next(err);
       }
     })
     .catch((err) => {
       next(err);
     });
 };
-
 
 // Получить информацию о пользователе
 const getUserInfo = (req, res, next) => {
@@ -36,35 +35,43 @@ const getUserInfo = (req, res, next) => {
       if (user) {
         res.send(user);
       } else {
-        throw(new UniError({name: 'DocumentNotFoundError'}, 'получение пользователя'));
+        const err = new Error(errorMessages.USER_NOT_FOUND);
+        err.name = 'NotFoundError';
+        throw (new UniError(err));
       }
     })
-    .catch((err) => next(new UniError(err), 'получение пользователя .catch'));
+    .catch((err) => {
+      next(err);
+    });
 };
-
 
 // Логин пользователя
 const login = (req, res, next) => {
   const { email, password } = req.body;
 
-  User.findOne({email})
+  User.findOne({ email })
     .select('+password')
     .then((user) => {
       if (!user) {
-        throw(new UniError({name: 'LoginError'}, 'вход пользователя'));
+        const err = new Error(errorMessages.LOGIN_INCORRECT);
+        err.name = 'LoginError';
+        throw (new UniError(err));
       }
       return bcrypt.compare(password, user.password)
         .then((matched) => {
           if (!matched) {
-            throw(new UniError({name: 'LoginError'}, 'вход пользователя'));
+            const err = new Error(errorMessages.LOGIN_INCORRECT);
+            err.name = 'LoginError';
+            throw (new UniError(err));
           }
-          const token = jwt.sign({_id: user._id}, secredKey, { expiresIn: '7d' });
-          res.send({token});
+          const token = jwt.sign({ _id: user._id }, secredKey, { expiresIn: jwtExpiresIn });
+          res.send({ token });
         });
     })
-    .catch(() => next(new UniError({name: 'LoginError'}, 'вход пользователя')));
+    .catch((err) => {
+      next(err);
+    });
 };
-
 
 // Обновить пользователя
 const updateUserInfo = (req, res, next) => {
@@ -72,12 +79,17 @@ const updateUserInfo = (req, res, next) => {
   User.findByIdAndUpdate(id, req.body, { new: true, runValidators: true })
     .then((user) => {
       if (!user) {
-        throw(new UniError({name: 'DocumentNotFound'}));
+        const err = new Error(errorMessages.USER_NOT_FOUND);
+        err.name = 'NotFoundError';
+        throw (new UniError(err));
       }
       res.send(user);
     })
-    .catch((err) => next(new UniError(err, 'обновление пользователя')));
+    .catch((err) => {
+      next(err);
+    });
 };
 
-
-module.exports = {createUser, getUserInfo, login, updateUserInfo};
+module.exports = {
+  createUser, getUserInfo, login, updateUserInfo,
+};

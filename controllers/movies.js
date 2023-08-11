@@ -1,55 +1,85 @@
-const Movie = require('../models/movies');
 const mongoose = require('mongoose');
+const Movie = require('../models/movies');
 const UniError = require('../utils/errors');
-
+const { errorMessages, successMessages } = require('../utils/messages');
 
 // Получить все фильмы
 const getMovies = (req, res, next) => {
   Movie.find({})
-    .then(movies => res.send(movies))
-    .catch((err) => next(new UniError(err, 'получение всех фильмов')));
+    .then((movies) => {
+      res.send(movies);
+    })
+    .catch((err) => {
+      next(err);
+    });
 };
-
 
 // Создать фильм
 const createMovie = (req, res, next) => {
-  const { country, director, duration, year, description, image,
-    trailer, nameRU, nameEN, thumbnail, movieId } = req.body;
+  const {
+    country, director, duration, year, description, image,
+    trailerLink, nameRU, nameEN, thumbnail, movieId,
+  } = req.body;
+
   const id = req.user._id;
+
   const owner = new mongoose.Types.ObjectId(id);
 
-  Movie.create({ country, director, duration, year, description, image,
-    trailer, nameRU, nameEN, thumbnail, movieId, owner })
-    .then(movie => res.status(201).send(movie))
-    .catch((err) => next(new UniError(err, 'создание фильма')));
+  Movie.create({
+    country,
+    director,
+    duration,
+    year,
+    description,
+    image,
+    trailerLink,
+    nameRU,
+    nameEN,
+    thumbnail,
+    movieId,
+    owner,
+  })
+    .then((movie) => {
+      res.status(201).send(movie);
+    })
+    .catch((err) => {
+      next(err);
+    });
 };
-
 
 // Удалить фильм
 const deleteMovie = (req, res, next) => {
   Movie.findById(req.params._id)
     .then((movie) => {
       if (movie) {
+        // Проверка прав пользователя
         if (String(movie.owner._id).replace('new OwnerId("', '').replace('")', '') !== req.user._id) {
-          throw(new UniError({name:'AccessDeniedError'}));
+          const err = new Error(errorMessages.ACCESS_DENIED);
+          err.name = 'AccessDeniedError';
+          throw (new UniError(err));
         }
         // права подтверждены. фильм есть. выполняем удаление
-        Movie.findByIdAndRemove(req.params._id)
-          .then((movie) => {
-            if (movie) {
-              res.send({message: 'удалено'});
+        return Movie.findByIdAndRemove(req.params._id)
+          .then((removedMovie) => {
+            if (removedMovie) {
+              res.send({ message: successMessages.DELETED });
             } else {
-              throw(new UniError({name: 'CastError'}));
+              const err = new Error(errorMessages.DELETE_NOT_SUCCESS);
+              err.name = 'CastError';
+              throw (new UniError(err));
             }
           });
-      } else {
-        throw(new UniError({name:'DocumentNotFoundError'}));
       }
+      // фильм не найден - отдать ошибку
+      const err = new Error(errorMessages.MOVIE_NOT_FOUND);
+      err.name = 'NotFoundError';
+      throw (new UniError(err));
     })
     .catch((err) => {
-      next(new UniError({message: err.message, name: err.name}, 'удаление фильма'));
+      next(err);
     });
 };
 
-
-module.exports = { getMovies, createMovie, deleteMovie };
+module.exports = {
+  getMovies, createMovie, deleteMovie,
+};

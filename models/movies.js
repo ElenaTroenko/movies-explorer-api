@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
+
 const { ObjectId } = mongoose.Schema.Types;
 const { urlRegex } = require('../utils/constants');
-
 
 // схема card
 const movieSchema = new mongoose.Schema({
@@ -9,7 +9,7 @@ const movieSchema = new mongoose.Schema({
     required: true,
     type: String,
   },
-  director : {
+  director: {
     required: true,
     type: String,
   },
@@ -17,7 +17,7 @@ const movieSchema = new mongoose.Schema({
     required: true,
     type: Number,
   },
-  description : {
+  description: {
     required: true,
     type: String,
   },
@@ -25,7 +25,7 @@ const movieSchema = new mongoose.Schema({
     required: true,
     type: String,
     validate: {
-      validator: function (newLink) {
+      validator: function urlValidate(newLink) {
         return urlRegex.test(newLink);
       },
     },
@@ -51,7 +51,7 @@ const movieSchema = new mongoose.Schema({
     required: true,
     type: String,
     validate: {
-      validator: function (newLink) {
+      validator: function urlValidate(newLink) {
         return urlRegex.test(newLink);
       },
     },
@@ -60,7 +60,7 @@ const movieSchema = new mongoose.Schema({
     required: true,
     type: String,
     validate: {
-      validator: function (newLink) {
+      validator: function urlValidate(newLink) {
         return urlRegex.test(newLink);
       },
     },
@@ -70,6 +70,5 @@ const movieSchema = new mongoose.Schema({
     type: String,
   },
 });
-
 
 module.exports = mongoose.model('movie', movieSchema);

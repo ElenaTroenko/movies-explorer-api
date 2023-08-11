@@ -1,17 +1,8 @@
+const { corsOptions } = require('../utils/constants');
+
 module.exports = (req, res, next) => {
-
   // массив со списком разрешенных доменов
-  const allowedCors = [
-    'http://et-movies.nomoreparties.co',
-    'https://et-movies.nomoreparties.co',
-    'localhost:3000',
-    'http://localhost:3000',
-    'https://localhost:3000',
-  ];
-
-
-  // разрешенные методы
-  const DEFAULT_ALLOWED_METHODS = 'GET, HEAD, PUT, PATCH, POST, DELETE';
+  const allowedCors = corsOptions.ALLOWED_CORS;
 
   const requestHeaders = req.headers['access-control-request-headers'];
   const { method } = req;
@@ -22,11 +13,11 @@ module.exports = (req, res, next) => {
   }
 
   if (method === 'OPTIONS') {
-    res.header('Access-Control-Allow-Methods', DEFAULT_ALLOWED_METHODS);
+    res.header('Access-Control-Allow-Methods', corsOptions.ALLOWED_METHODS);
     res.header('Access-Control-Allow-Headers', requestHeaders);
 
-    return res.status(204).end();
+    res.status(corsOptions.OPTIONS_OK_STATUS).end();
+  } else {
+    next();
   }
-
-  next();
 };
