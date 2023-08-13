@@ -11,6 +11,7 @@ const errorMessages = {
 
 const successMessages = {
   DELETED: 'Фильм удален',
+  LISTENING_PORT: 'Прослушиваемый порт:',
 };
 
 module.exports = { errorMessages, successMessages };

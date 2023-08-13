@@ -1,5 +1,6 @@
 const UniError = require('./errors');
 const { errorMessages } = require('./messages');
+const { errorCodes } = require('./constants');
 
 // шлет ошибку в ответ (res)
 const sendError = (err, res) => {
@@ -9,7 +10,7 @@ const sendError = (err, res) => {
   if (!(err instanceof UniError)) {
     error = new UniError(err);
   }
-  const { statusCode = 500, message = errorMessages.DEFAULT } = error;
+  const { statusCode = errorCodes.DEFAULT_ERROR, message = errorMessages.DEFAULT } = error;
 
   // отправить ответ со статусом и сообщением
   res.status(statusCode).send({ message });

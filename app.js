@@ -4,11 +4,10 @@ const bodyParser = require('body-parser');
 const { errors } = require('celebrate');
 const helmet = require('helmet');
 const router = require('./routes/index');
-const UniError = require('./utils/errors');
 const { sendError } = require('./utils/utils');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
 const cors = require('./middlewares/cors');
-const { errorMessages } = require('./utils/messages');
+const { successMessages } = require('./utils/messages');
 const { limiter } = require('./utils/limiter');
 
 const { devDefaultSettings } = require('./utils/constants');
@@ -36,13 +35,6 @@ app.use(limiter);
 // Роутер
 app.use('/', router);
 
-// Хэндлер 404 страниц
-app.use('/', () => {
-  const err = new Error(errorMessages.NOT_FOUND);
-  err.name = 'NotFoundError';
-  throw (new UniError(err));
-});
-
 // логгер ошибок
 app.use(errorLogger);
 
@@ -59,5 +51,5 @@ mongoose.connect(DB);
 
 // Запуск
 app.listen(PORT, () => {
-  console.log(`Слушаю порт ${PORT}...`);
+  console.log(successMessages.LISTENING_PORT, PORT);
 });

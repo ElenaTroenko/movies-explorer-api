@@ -1,11 +1,14 @@
 const mongoose = require('mongoose');
 const Movie = require('../models/movies');
+const { successCodes } = require('../utils/constants');
 const UniError = require('../utils/errors');
 const { errorMessages, successMessages } = require('../utils/messages');
 
 // Получить все фильмы
 const getMovies = (req, res, next) => {
-  Movie.find({})
+  const owner = req.user;
+
+  Movie.find({ owner })
     .then((movies) => {
       res.send(movies);
     })
@@ -40,7 +43,7 @@ const createMovie = (req, res, next) => {
     owner,
   })
     .then((movie) => {
-      res.status(201).send(movie);
+      res.status(successCodes.CREATED).send(movie);
     })
     .catch((err) => {
       next(err);
@@ -64,8 +67,8 @@ const deleteMovie = (req, res, next) => {
             if (removedMovie) {
               res.send({ message: successMessages.DELETED });
             } else {
-              const err = new Error(errorMessages.DELETE_NOT_SUCCESS);
-              err.name = 'CastError';
+              const err = new Error(errorMessages.MOVIE_NOT_FOUND);
+              err.name = 'NotFoundError';
               throw (new UniError(err));
             }
           });

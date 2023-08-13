@@ -1,22 +1,14 @@
 /* eslint no-underscore-dangle: 0 */
 
+const { ERROR_CODES } = require('./constants');
+
 // Класс универсальной ошибки. Наследует от класса Error,
 // устанавливает statusCode ситуационно
 class UniError extends Error {
   constructor(err) {
     super(err.message);
 
-    this._ERROR_CODES = {
-      ValidationError: 400,
-      NotFoundError: 404,
-      CastError: 400,
-      MongoServerError: 409,
-      WrongTokenError: 401,
-      AuthorizationError: 401,
-      LoginError: 401,
-      AccessDeniedError: 403,
-      default: 500,
-    };
+    this._ERROR_CODES = ERROR_CODES;
 
     // заполнить
     this._fillErrorCode(err);

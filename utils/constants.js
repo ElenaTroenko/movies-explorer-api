@@ -23,10 +23,29 @@ const corsOptions = {
   OPTIONS_OK_STATUS: 204,
 };
 
+const ERROR_CODES = {
+  ValidationError: 400,
+  VALIDATION_ERROR: 400,
+  NotFoundError: 404,
+  CastError: 400,
+  MongoServerError: 409,
+  WrongTokenError: 401,
+  AuthorizationError: 401,
+  LoginError: 401,
+  AccessDeniedError: 403,
+  default: 500,
+};
+
+const successCodes = {
+  CREATED: 201,
+};
+
 module.exports = {
   secredKey,
   urlRegex,
   devDefaultSettings,
   jwtExpiresIn,
   corsOptions,
+  successCodes,
+  ERROR_CODES,
 };

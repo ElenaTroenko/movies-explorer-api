@@ -2,7 +2,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const UniError = require('../utils/errors');
-const { secredKey, jwtExpiresIn } = require('../utils/constants');
+const { successCodes, secredKey, jwtExpiresIn } = require('../utils/constants');
 const { errorMessages } = require('../utils/messages');
 
 // Создать пользователя
@@ -15,7 +15,7 @@ const createUser = (req, res, next) => {
         await User.create({ name, email, password: hash })
           .then((recordedUser) => {
             User.findById(recordedUser._id)
-              .then((user) => res.status(201).send({ user }));
+              .then((user) => res.status(successCodes.CREATED).send({ user }));
           });
       } catch (err) {
         next(err);
